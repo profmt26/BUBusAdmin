@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Business Program Explorer — Concept</title>
+
+  <style>
+    :root {
+      --navy: #17324d;
+      --teal: #087e83;
+      --background: #f3f6fa;
+      --surface: #ffffff;
+      --border: #dce4ed;
+      --muted: #526477;
+      --core-bg: #e7f0fc;
+      --core-text: #234c83;
+      --required-bg: #ddf3ec;
+      --required-text: #17604b;
+      --elective-bg: #fff2d8;
+      --elective-text: #79500a;
+      --breadth-bg: #eee8fb;
+      --breadth-text: #654394;
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--navy);
+      background: var(--background);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    button, select, input { font: inherit; }
+
+    button, select, summary, input[type="checkbox"] { cursor: pointer; }
+
+    :focus-visible {
+      outline: 3px solid #a34900;
+      outline-offset: 4px;
+    }
+
+    .container {
+      max-width: 1600px;
+      margin: auto;
+      padding: 32px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 24px;
+      margin-bottom: 20px;
+    }
+
+    .eyebrow {
+      margin: 0 0 8px;
+      color: var(--teal);
+      font-size: .78rem;
+      font-weight: 750;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.9rem, 3vw, 2.7rem);
+      letter-spacing: -.04em;
+    }
+
+    .subtitle { margin: 8px 0 0; color: var(--muted); }
+
+    .concept-label {
+      padding: 8px 13px;
+      border: 1px solid #bed8d9;
+      border-radius: 999px;
+      color: #176268;
+      background: #e8f5f4;
+      font-size: .8rem;
+      white-space: nowrap;
+    }
+
+    .notice {
+      padding: 13px 17px;
+      margin-bottom: 24px;
+      border-left: 4px solid #c38923;
+      border-radius: 8px;
+      background: #fff7e7;
+      color: #694b16;
+      font-size: .88rem;
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: 1.15fr 1.1fr .85fr;
+      align-items: start;
+      gap: 20px;
+    }
+
+    .panel {
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 6px 24px rgb(23 50 77 / 4%);
+      overflow: hidden;
+    }
+
+    .panel-header { padding: 22px 22px 15px; }
+
+    .step {
+      display: inline-grid;
+      place-items: center;
+      width: 29px;
+      height: 29px;
+      margin-right: 7px;
+      border-radius: 9px;
+      background: #e5f2f2;
+      color: #12656a;
+      font-size: .9rem;
+    }
+
+    h2 { margin: 0; font-size: 1.12rem; }
+
+    .description {
+      margin: 10px 0 0;
+      font-size: .86rem;
+      color: var(--muted);
+    }
+
+    .panel-body { padding: 0 22px 22px; }
+
+    .field-label {
+      display: block;
+      margin: 14px 0 6px;
+      font-size: .82rem;
+      font-weight: 650;
+    }
+
+    select, input[type="search"] {
+      width: 100%;
+      min-height: 42px;
+      padding: 9px 11px;
+      border: 1px solid #bbc9d7;
+      border-radius: 8px;
+      background: white;
+      color: var(--navy);
+    }
+
+    .table-scroll {
+      overflow-x: auto;
+      margin-top: 18px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: .79rem;
+    }
+
+    caption {
+      padding-bottom: 10px;
+      text-align: left;
+      color: var(--muted);
+      font-size: .78rem;
+    }
+
+    th, td {
+      padding: 12px 7px;
+      border-bottom: 1px solid #e6ecf2;
+      text-align: center;
+    }
+
+    thead th {
+      color: var(--muted);
+      background: #f7f9fc;
+      font-size: .71rem;
+    }
+
+    tbody th {
+      min-width: 135px;
+      text-align: left;
+      font-weight: 550;
+    }
+
+    .course-code {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: .67rem;
+      font-weight: 400;
+    }
+
+    .selected-column { background: #f0f8f8; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 7px;
+      border-radius: 6px;
+      font-size: .7rem;
+      font-weight: 650;
+    }
+
+    .core { background: var(--core-bg); color: var(--core-text); }
+    .required { background: var(--required-bg); color: var(--required-text); }
+    .elective { background: var(--elective-bg); color: var(--elective-text); }
+    .breadth { background: var(--breadth-bg); color: var(--breadth-text); }
+    .unlisted { color: #637487; }
+
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px 13px;
+      margin-top: 17px;
+      color: var(--muted);
+      font-size: .73rem;
+    }
+
+    .legend span { display: inline-flex; align-items: center; gap: 5px; }
+
+    .small-note {
+      color: var(--muted);
+      font-size: .75rem;
+      margin: 14px 0 0;
+    }
+
+    .term-headings, .year-row {
+      display: grid;
+      grid-template-columns: 47px 1fr 1fr;
+      gap: 8px;
+    }
+
+    .term-headings {
+      margin-top: 20px;
+      padding-bottom: 8px;
+      font-size: .76rem;
+      font-weight: 650;
+      color: var(--muted);
+    }
+
+    .year-row {
+      padding: 12px 0;
+      border-top: 1px solid #e6ecf2;
+    }
+
+    .year-label {
+      padding-top: 8px;
+      font-size: .76rem;
+      font-weight: 650;
+    }
+
+    .term { display: flex; flex-direction: column; gap: 8px; }
+
+    .course-card {
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: #fbfcfe;
+      font-size: .76rem;
+    }
+
+    .course-card .badge { margin-top: 7px; font-size: .63rem; }
+
+    details {
+      margin-top: 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    summary {
+      padding: 14px;
+      font-size: .9rem;
+      font-weight: 650;
+      background: #f8fafc;
+    }
+
+    details[open] summary { border-bottom: 1px solid var(--border); }
+
+    .details-content { padding: 14px; }
+
+    .rule {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    .elective-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 10px 0;
+      font-size: .84rem;
+    }
+
+    .elective-option input { margin-top: 5px; accent-color: var(--teal); }
+
+    .selection-status {
+      margin: 10px 0 0;
+      padding: 9px;
+      border-radius: 6px;
+      background: #edf5f6;
+      color: #285b61;
+      font-size: .78rem;
+    }
+
+    .selection-status.warning { background: #fff2d8; color: #79500a; }
+
+    .info-card {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 10px;
+      background: #f0f4f8;
+    }
+
+    .info-card h3 { margin: 0 0 7px; font-size: .86rem; }
+    .info-card p { margin: 0; color: var(--muted); font-size: .79rem; }
+
+    .reset-button {
+      margin-top: 12px;
+      padding: 7px 10px;
+      border: 1px solid #bdcbd9;
+      border-radius: 7px;
+      background: white;
+      color: var(--navy);
+      font-size: .76rem;
+    }
+
+    footer {
+      margin-top: 26px;
+      text-align: center;
+      color: var(--muted);
+      font-size: .85rem;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    @media (max-width: 1200px) {
+      .workspace { grid-template-columns: 1fr 1fr; }
+      .electives-panel { grid-column: 1 / -1; }
+    }
+
+    @media (max-width: 760px) {
+      .container { padding: 20px 12px; }
+      .hero { flex-direction: column; gap: 12px; }
+      .workspace { grid-template-columns: 1fr; }
+      .electives-panel { grid-column: auto; }
+      .panel-header { padding: 18px 16px 14px; }
+      .panel-body { padding: 0 16px 18px; }
+    }
+
+    @media print {
+      body { background: white; }
+      .container { max-width: none; padding: 0; }
+      .workspace { display: block; }
+      .panel { margin-bottom: 20px; box-shadow: none; break-inside: avoid; }
+      .reset-button { display: none; }
+      .table-scroll { overflow: visible; }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <header class="hero">
+      <div>
+        <p class="eyebrow">Undergraduate business studies</p>
+        <h1>Business Program Explorer</h1>
+        <p class="subtitle">
+          Compare requirements, explore pathways, and understand your choices.
+        </p>
+      </div>
+      <span class="concept-label">Client presentation · Interactive concept</span>
+    </header>
+
+    <aside class="notice" aria-label="Important disclaimer">
+      Illustrative concept only. Course codes, requirements, elective rules,
+      and sequences are fictional. Maps show selected highlights, not complete degrees.
+    </aside>
+
+    <div class="workspace">
+
+      <!-- VIEW 1: PROGRAM COMPARISON -->
+      <section class="panel" aria-labelledby="compare-title">
+        <div class="panel-header">
+          <h2 id="compare-title"><span class="step">1</span>Compare programs</h2>
+          <p class="description">
+            See which courses are shared and where programs differ.
+          </p>
+        </div>
+
+        <div class="panel-body">
+          <label class="field-label" for="course-search">Find a course</label>
+          <input
+            id="course-search"
+            type="search"
+            placeholder="Search by course name or code"
+          >
+
+          <div class="table-scroll" tabindex="0"
+               role="region" aria-label="Scrollable program comparison">
+            <table>
+              <caption>
+                Sample requirements. The selected program column is highlighted.
+              </caption>
+              <thead id="comparison-head"></thead>
+              <tbody id="comparison-body"></tbody>
+            </table>
+          </div>
+
+          <p id="search-status" class="sr-only" aria-live="polite"></p>
+
+          <div class="legend" aria-label="Requirement legend">
+            <span><span class="badge core">C</span> Common core</span>
+            <span><span class="badge required">R</span> Program required</span>
+            <span><span class="badge elective">E</span> Eligible elective</span>
+            <span>— Not listed</span>
+          </div>
+
+          <p class="small-note">
+            “Not listed” does not necessarily mean a course cannot count toward
+            a degree. Actual eligibility would follow the academic calendar.
+          </p>
+        </div>
+      </section>
+
+      <!-- VIEW 2: COURSE PATHWAY -->
+      <section class="panel" aria-labelledby="pathway-title">
+        <div class="panel-header">
+          <h2 id="pathway-title"><span class="step">2</span>Plan your degree</h2>
+          <p class="description">
+            Explore a suggested pathway for your selected program.
+          </p>
+        </div>
+
+        <div class="panel-body">
+          <label class="field-label" for="program-select">Selected program</label>
+          <select id="program-select"></select>
+
+          <div id="pathway" aria-live="polite"></div>
+
+          <p class="small-note">
+            Sample highlights only · Suggested sequence · Not a full course load.
+            Actual prerequisites and course availability must be verified.
+          </p>
+        </div>
+      </section>
+
+      <!-- VIEW 3: ELECTIVE EXPLORER -->
+      <section class="panel electives-panel" aria-labelledby="electives-title">
+        <div class="panel-header">
+          <h2 id="electives-title"><span class="step">3</span>Explore electives</h2>
+          <p class="description">
+            Understand the selection rules behind each elective category.
+          </p>
+        </div>
+
+        <div class="panel-body">
+          <details open>
+            <summary>Program electives</summary>
+            <div class="details-content">
+              <p class="rule">Choose 2 courses from this illustrative list.</p>
+              <div id="elective-options"></div>
+              <p id="selection-status" class="selection-status"
+                 role="status" aria-live="polite"></p>
+              <button id="reset-selection" class="reset-button" type="button">
+                Clear selections
+              </button>
+            </div>
+          </details>
+
+          <details>
+            <summary>Breadth electives</summary>
+            <div class="details-content">
+              <p class="rule">
+                Explore approved courses outside business. Sample areas:
+              </p>
+              <ul>
+                <li>Humanities</li>
+                <li>Social sciences</li>
+                <li>Natural sciences</li>
+              </ul>
+              <p class="small-note">
+                Required credits and eligible subjects would be specified
+                for each degree.
+              </p>
+            </div>
+          </details>
+
+          <details>
+            <summary>Open electives</summary>
+            <div class="details-content">
+              <p class="rule">
+                Explore courses that fit your interests, subject to degree
+                rules, prerequisites, exclusions, and credit limits.
+              </p>
+              <p class="small-note">
+                “Open” does not automatically mean every course is eligible.
+              </p>
+            </div>
+          </details>
+
+          <div class="info-card">
+            <h3>Future course-detail view</h3>
+            <p>
+              A production version could show credits, prerequisites,
+              descriptions, availability, and links to the academic calendar.
+            </p>
+          </div>
+
+          <p class="small-note">
+            Selections are for demonstration only and are not saved after refresh.
+          </p>
+        </div>
+      </section>
+    </div>
+
+    <footer>
+      Compare requirements → Plan a pathway → Understand your choices
+    </footer>
+  </main>
+
+  <script>
+    // Fictional demonstration data. Replace with validated curriculum data.
+    const programs = [
+      { id: "general", name: "General Business", short: "General" },
+      { id: "accounting", name: "Accounting", short: "Accounting" },
+      { id: "marketing", name: "Marketing", short: "Marketing" },
+      { id: "analytics", name: "Business Analytics", short: "Analytics" }
+    ];
+
+    const courses = [
+      {
+        code: "BUS 101", name: "Introduction to Management",
+        general: "C", accounting: "C", marketing: "C", analytics: "C"
+      },
+      {
+        code: "BUS 102", name: "Financial Accounting",
+        general: "C", accounting: "C", marketing: "C", analytics: "C"
+      },
+      {
+        code: "BUS 201", name: "Business Statistics",
+        general: "C", accounting: "C", marketing: "C", analytics: "C"
+      },
+      {
+        code: "ACC 301", name: "Intermediate Accounting",
+        general: "E", accounting: "R", marketing: "E", analytics: "—"
+      },
+      {
+        code: "MKT 301", name: "Consumer Behaviour",
+        general: "E", accounting: "E", marketing: "R", analytics: "E"
+      },
+      {
+        code: "ANA 301", name: "Business Analytics",
+        general: "E", accounting: "E", marketing: "E", analytics: "R"
+      },
+      {
+        code: "ANA 302", name: "Data Visualization",
+        general: "E", accounting: "—", marketing: "E", analytics: "R"
+      }
+    ];
+
+    const programDetails = {
+      general: {
+        pathway: [
+          ["Business Foundations", "Business Communication"],
+          ["Organizational Behaviour", "Operations Management"],
+          ["Business Strategy", "Integrative Business Project"]
+        ],
+        electives: [
+          "Entrepreneurship", "International Business", "Negotiation"
+        ]
+      },
+      accounting: {
+        pathway: [
+          ["Accounting Foundations", "Management Accounting"],
+          ["Intermediate Accounting", "Accounting Systems"],
+          ["Advanced Accounting", "Accounting Capstone"]
+        ],
+        electives: [
+          "Forensic Accounting", "Tax Planning", "Public-Sector Accounting"
+        ]
+      },
+      marketing: {
+        pathway: [
+          ["Marketing Foundations", "Marketing Research"],
+          ["Consumer Behaviour", "Digital Marketing"],
+          ["Brand Strategy", "Marketing Capstone"]
+        ],
+        electives: [
+          "Retail Marketing", "Social Media Marketing", "Sales Management"
+        ]
+      },
+      analytics: {
+        pathway: [
+          ["Business Analytics", "Data Management"],
+          ["Data Visualization", "Predictive Analytics"],
+          ["Analytics Capstone", "Applied Analytics Project"]
+        ],
+        electives: [
+          "Marketing Analytics", "Operations Analytics", "Business Intelligence"
+        ]
+      }
+    };
+
+    const statusInfo = {
+      C: { label: "Common core", className: "core" },
+      R: { label: "Program required", className: "required" },
+      E: { label: "Eligible elective", className: "elective" }
+    };
+
+    const programSelect = document.getElementById("program-select");
+    const searchInput = document.getElementById("course-search");
+    const selectedElectives = Object.fromEntries(
+      programs.map(program => [program.id, new Set()])
+    );
+
+    programs.forEach(program => {
+      const option = document.createElement("option");
+      option.value = program.id;
+      option.textContent = program.name;
+      programSelect.appendChild(option);
+    });
+
+    programSelect.value = "analytics";
+
+    function renderComparison() {
+      const selected = programSelect.value;
+      const query = searchInput.value.trim().toLowerCase();
+
+      document.getElementById("comparison-head").innerHTML = `
+        <tr>
+          <th scope="col">Course</th>
+          ${programs.map(program => `
+            <th scope="col"
+                class="${program.id === selected ? "selected-column" : ""}">
+              ${program.short}
+            </th>
+          `).join("")}
+        </tr>
+      `;
+
+      const filtered = courses.filter(course =>
+        `${course.code} ${course.name}`.toLowerCase().includes(query)
+      );
+
+      document.getElementById("comparison-body").innerHTML =
+        filtered.length
+          ? filtered.map(course => `
+            <tr>
+              <th scope="row">
+                <span class="course-code">${course.code}</span>
+                ${course.name}
+              </th>
+              ${programs.map(program => {
+                const value = course[program.id];
+                const info = statusInfo[value];
+                return `
+                  <td class="${program.id === selected ? "selected-column" : ""}">
+                    ${info
+                      ? `<span class="badge ${info.className}">
+                           <span aria-hidden="true">${value}</span>
+                           <span class="sr-only">${info.label}</span>
+                         </span>`
+                      : `<span class="unlisted">
+                           <span aria-hidden="true">—</span>
+                           <span class="sr-only">Not listed</span>
+                         </span>`
+                    }
+                  </td>
+                `;
+              }).join("")}
+            </tr>
+          `).join("")
+          : '<tr><td colspan="5">No matching courses found.</td></tr>';
+
+      document.getElementById("search-status").textContent =
+        `${filtered.length} courses shown.`;
+    }
+
+    function courseCard(name, type) {
+      const labels = {
+        core: "Core",
+        required: "Required",
+        elective: "Elective",
+        breadth: "Breadth"
+      };
+
+      return `
+        <div class="course-card">
+          <div>${name}</div>
+          <span class="badge ${type}">${labels[type]}</span>
+        </div>
+      `;
+    }
+
+    function renderPathway() {
+      const details = programDetails[programSelect.value];
+
+      const years = [
+        {
+          fall: [
+            ["Management", "core"],
+            ["Financial Accounting", "core"]
+          ],
+          winter: [
+            ["Business Statistics", "core"],
+            ["Breadth elective", "breadth"]
+          ]
+        },
+        ...details.pathway.map((pair, index) => ({
+          fall: [
+            [pair[0], "required"],
+            [index === 0 ? "Business core" : "Program elective",
+             index === 0 ? "core" : "elective"]
+          ],
+          winter: [
+            [pair[1], "required"],
+            [index === 1 ? "Business elective" : "Open elective", "elective"]
+          ]
+        }))
+      ];
+
+      document.getElementById("pathway").innerHTML = `
+        <div class="term-headings" aria-hidden="true">
+          <span></span><span>Fall</span><span>Winter</span>
+        </div>
+        ${years.map((year, index) => `
+          <section class="year-row" aria-label="Year ${index + 1}">
+            <div class="year-label">Year ${index + 1}</div>
+            <div class="term">
+              <span class="sr-only">Fall term</span>
+              ${year.fall.map(course => courseCard(...course)).join("")}
+            </div>
+            <div class="term">
+              <span class="sr-only">Winter term</span>
+              ${year.winter.map(course => courseCard(...course)).join("")}
+            </div>
+          </section>
+        `).join("")}
+      `;
+    }
+
+    function renderElectives() {
+      const program = programSelect.value;
+      const selections = selectedElectives[program];
+
+      document.getElementById("elective-options").innerHTML =
+        programDetails[program].electives.map((name, index) => `
+          <label class="elective-option">
+            <input type="checkbox" value="${index}"
+                   ${selections.has(index) ? "checked" : ""}>
+            <span>${name}</span>
+          </label>
+        `).join("");
+
+      updateSelectionStatus();
+    }
+
+    function updateSelectionStatus() {
+      const count = selectedElectives[programSelect.value].size;
+      const status = document.getElementById("selection-status");
+
+      status.classList.toggle("warning", count > 2);
+
+      status.textContent = count > 2
+        ? `${count} selected — remove ${count - 2} to meet the sample rule.`
+        : count === 2
+          ? "2 of 2 selected — sample selection rule met."
+          : `${count} of 2 selected — choose ${2 - count} more.`;
+    }
+
+    programSelect.addEventListener("change", () => {
+      renderComparison();
+      renderPathway();
+      renderElectives();
+    });
+
+    searchInput.addEventListener("input", renderComparison);
+
+    document.getElementById("elective-options")
+      .addEventListener("change", event => {
+        if (!event.target.matches('input[type="checkbox"]')) return;
+
+        const selections = selectedElectives[programSelect.value];
+        const index = Number(event.target.value);
+
+        if (event.target.checked) selections.add(index);
+        else selections.delete(index);
+
+        updateSelectionStatus();
+      });
+
+    document.getElementById("reset-selection")
+      .addEventListener("click", () => {
+        selectedElectives[programSelect.value].clear();
+        renderElectives();
+      });
+
+    renderComparison();
+    renderPathway();
+    renderElectives();
+  </script>
+</body>
+</html>
